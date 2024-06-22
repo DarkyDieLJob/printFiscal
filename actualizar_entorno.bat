@@ -16,6 +16,7 @@ IF NOT EXIST "requirements.txt" (
 )
 
 pip install -r requirements.txt
+
 echo.
 echo ¡Actualización completada!
 pause

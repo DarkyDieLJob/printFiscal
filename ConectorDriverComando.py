@@ -28,7 +28,7 @@ class ConectorDriverComando:
 		t.start()
 
    	
-   	def sendCommand(self, *args):
+	def sendCommand(self, *args):
 		return self.driver.sendCommand(*args)
 
 

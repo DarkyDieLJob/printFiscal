@@ -1,1 +1,4 @@
 tornado
+configparser
+requests
+pyserial

@@ -84,7 +84,7 @@ class TraductoresHandler:
 		global traductores
 		logging.info("Iniciando procesamiento de json...")
 
-		print jsonTicket
+		print(jsonTicket)
 
 		
 		rta = {}
@@ -167,7 +167,7 @@ class TraductoresHandler:
 									index += 1
 			print(return_dict)
 			logging.info('Finalizó la busqueda por nmap')
-		 	return return_dict
+			return return_dict
 
 		elif device_list[device_list_identifier_pos] == 1:
 
@@ -186,8 +186,8 @@ class TraductoresHandler:
 			return return_dict  
 				
 		else:
-			 print 'identificador erroneo'
-			 quit()
+			print('identificador erroneo')
+			quit()
 
 
 	def __getPrintersAndWriteConfig(self):
@@ -212,13 +212,13 @@ class TraductoresHandler:
 			global traductores
 			logging.info("Iniciando procesamiento de json...")
 			for t in traductores:
-				print "estoy por verificando conexion de %s"%t
+				print("estoy por verificando conexion de {}".format(t))
 				if not traductores[t].comando.conector:
-					print "*** NO conectada"
-					logging.info("la impresora %s esta desconectada y voy a reintentar conectarla"%t)
+					print("*** NO conectada")
+					logging.info("la impresora {} esta desconectada y voy a reintentar conectarla".format(t))
 					self.__init_printer_traductor(t)
 				else:
-					print "ya estaba conectado"
+					print("ya estaba conectado")
 
 		set_interval(recorrer_traductores_y_comprobar, 10)
 

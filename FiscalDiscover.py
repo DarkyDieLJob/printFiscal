@@ -17,7 +17,7 @@ def get_ip():
 
 
 def send(discoverUrl):
-	print uuid.getnode()
+	print(uuid.getnode())
 	uuidvalue = str(uuid.uuid1(uuid.getnode(),0))[24:]
 
 	ip = get_ip()
@@ -28,6 +28,6 @@ def send(discoverUrl):
 	}
 
 	resp = requests.post(discoverUrl, data=senddata)
-	print senddata
-	print resp
+	print(senddata)
+	print(resp)
 	return resp

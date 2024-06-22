@@ -74,7 +74,7 @@ class FiscalPrinterDriver(DriverInterface):
 
     def _write( self, s ):
         debug( "_write", ", ".join( [ "%x" % ord(c) for c in s ] ) )
-        self._serialPort.write( s )
+        self._serialPort.write( s.encode() )
 
     def _read( self, count ):
         ret = self._serialPort.read( count )
@@ -102,13 +102,13 @@ class FiscalPrinterDriver(DriverInterface):
         x = int( printerStatus, 16 )
         for value, message in self.printerStatusErrors:
             if (value & x) == value:
-                raise PrinterStatusError, message
+                raise PrinterStatusError(message)
 
     def _parseFiscalStatus( self, fiscalStatus ):
         x = int( fiscalStatus, 16 )
         for value, message in self.fiscalStatusErrors:
             if (value & x) == value:
-                raise FiscalStatusError, message
+                raise FiscalStatusError(message)
 
     
 

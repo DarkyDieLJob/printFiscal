@@ -139,8 +139,8 @@ class ComandoInterface:
         if driver:
             try:
                 self.conector = ConectorDriverComando.ConectorDriverComando(self, driver, **kwargs)
-            except Exception, e:
-                logging.info( "no se pudo conectar con el driver: %s"%driver )
+            except Exception as e:
+                logging.info( "no se pudo conectar con el driver: {}".format(driver) )
                 self.conector = None
         
         traductorModule = importlib.import_module(self.traductorModule)
@@ -150,14 +150,14 @@ class ComandoInterface:
        
 
     def _sendCommand(self, commandNumber, parameters, skipStatusErrors=False):
-        print "_sendCommand", commandNumber, parameters
+        print("_sendCommand", commandNumber, parameters)
         try:
-            logging.getLogger().info("sendCommand: SEND|0x%x|%s|%s" % (commandNumber,
+            logging.getLogger().info("sendCommand: SEND|0x{}|{}|{}".format(commandNumber,
                 skipStatusErrors and "T" or "F",
                                                                      str(parameters)))
             return self.conector.sendCommand(commandNumber, parameters, skipStatusErrors)
-        except epsonFiscalDriver.ComandoException, e:
-            logging.getLogger().error("epsonFiscalDriver.ComandoException: %s" % str(e))
+        except epsonFiscalDriver.ComandoException as e:
+            logging.getLogger().error("epsonFiscalDriver.ComandoException: {}".format(str(e)))
             raise ComandoException("Error de la impresora fiscal: " + str(e))
 
 

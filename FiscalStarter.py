@@ -31,21 +31,21 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	def open(self):
 		global clients
 		clients.append(self)
-		print 'new connection'
+		print('new connection')
 	
 	def on_message(self, message):
 		global traductor
 		print("----- - -- - - - ---")
-		print message
+		print(message)
 		try:
 			jsonMes = json.loads(message, strict=False)
 			response = traductor.json_to_comando( jsonMes )
 			self.write_message( response )
 		except TypeError:
 			response = {"err": "Error parseando el JSON"}
-		except TraductorException, e:
+		except TraductorException as e:
 			response = {"err": "Traductor Comandos: %s"%str(e)}
-		except Exception, e:
+		except Exception as e:
 			response = {"err": repr(e)+"- "+str(e)}
 			import sys, traceback
 			traceback.print_exc(file=sys.stdout)
@@ -55,7 +55,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	def on_close(self):
 		global clients
 		clients.remove(self)
-		print 'connection closed'
+		print('connection closed')
  
 	def check_origin(self, origin):
 		return True
@@ -112,7 +112,7 @@ class FiscalServer:
 	def shutdown(self):
 		logging.info('Stopping http server')
 
-		logging.info('Will shutdown in %s seconds ...', MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
+		logging.info('Will shutdown in {} seconds ...'.format(MAX_WAIT_SECONDS_BEFORE_SHUTDOWN))
 		io_loop = tornado.ioloop.IOLoop.instance()
 
 		deadline = time.time() + MAX_WAIT_SECONDS_BEFORE_SHUTDOWN
@@ -142,10 +142,10 @@ class FiscalServer:
 		# inicializar intervalo para verificar que la impresora tenga papel
 		timerPrinterWarnings = Timer(INTERVALO_IMPRESORA_WARNING, self.send_printer_warnings).start()
 
-		print '*** Websocket Server Started at %s port %s***' % (myIP, puerto)
+		print('*** Websocket Server Started at {} port {} ***'.format(myIP, puerto))
 		tornado.ioloop.IOLoop.instance().start()
 
-		print "Bye!"
+		print("Bye!")
 		logging.info("Exit...")
 			
 
@@ -170,20 +170,20 @@ class FiscalServer:
 
 
 	def send_printer_warnings( self ):
-	    "enviar un broadcast a los clientes con los warnings de impresora, si existen"
-	    global clients
-	    global traductor
+		"enviar un broadcast a los clientes con los warnings de impresora, si existen"
+		global clients
+		global traductor
 
-	    warns = traductor.getWarnings()
-	    if warns:
-			print warns
+		warns = traductor.getWarnings()
+		if warns:
+			print(warns)
 	    	# envia broadcast a todos los clientes
 			msg = json.dumps( {"msg": warns } )
 			for cli in clients:
 				cli.write_message( msg )
-	    #volver a comprobar segun intervalo seleccionado  
-	    self.timerPrinterWarnings = Timer(INTERVALO_IMPRESORA_WARNING, self.send_printer_warnings)
-	    self.timerPrinterWarnings.start()
+		#volver a comprobar segun intervalo seleccionado  
+		self.timerPrinterWarnings = Timer(INTERVALO_IMPRESORA_WARNING, self.send_printer_warnings)
+		self.timerPrinterWarnings.start()
 
 
 
@@ -192,15 +192,15 @@ class FiscalServer:
 		printers = self.get_list_of_configured_printers()
 
 		if len(printers) > 1:
-			print "Hay %s impresoras disponibles" % len(printers)
+			print("Hay {} impresoras disponibles".format(len(printers)))
 		else:
-			print "Impresora disponible:"
+			print("Impresora disponible:")
 		for printer in printers:
-			print "  - %s" % printer
+			print("  - {}".format(printer))
 			modelo = None
 			marca = self.configFisc.config.get(printer, "marca")
 			driver = self.configFisc.config.get(printer, "driver")
 			if self.configFisc.config.has_option(printer, "modelo"):
 				modelo = self.configFisc.config.get(printer, "modelo")
-			print "      marca: %s, driver: %s" % (marca, driver)
-		print "\n"
+			print("      marca: {}, driver: {}".format(marca, driver))
+		print("\n")

@@ -1,11 +1,10 @@
-import ConfigParser
+import configparser
 import os
 
-CONFIG_FILE_NAME = "config.ini"
+CONFIG_FILE_NAME = "config_hasar615.ini"
 
 class ConfigFiscal:
-
-	config = ConfigParser.ConfigParser()
+	config = configparser.ConfigParser()
 
 	def __init__(self):
 		self.config.read(CONFIG_FILE_NAME)
@@ -25,7 +24,7 @@ class ConfigFiscal:
 
 
 	def writeSectionWithKwargs(self, printerName, kwargs):
-		self.config = ConfigParser.RawConfigParser()
+		self.config = configparser.RawConfigParser()
 		self.config.read(CONFIG_FILE_NAME)
 		if not self.config.has_section(printerName):
 			self.config.add_section(printerName)
