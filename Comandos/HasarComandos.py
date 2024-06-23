@@ -146,7 +146,7 @@ class HasarComandos(ComandoInterface):
         try:
             commandString = "SEND|0x{}|{}|{}".format(commandNumber, skipStatusErrors and "T" or "F",
                 str(parameters))
-            logging.getLogger().info("sendCommand: %s" % commandString)
+            logging.getLogger().info("sendCommand: {}".format(commandString))
        
             ret = self.conector.sendCommand(commandNumber, parameters, skipStatusErrors)
             logging.getLogger().info("reply: {}".format(ret))

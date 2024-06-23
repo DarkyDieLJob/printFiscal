@@ -4,13 +4,13 @@ from DriverInterface import DriverInterface
 import serial
 import sys
 
-def debugEnabled( *args ):
-    print >>sys.stderr, " ".join( map(str, args) )
+def debugEnabled(*args):
+    print(" ".join(map(str, args)), file=sys.stderr)
 
 def debugDisabled( *args ):
     pass
 
-debug = debugDisabled
+debug = debugEnabled
 
 class PrinterException(Exception):
     pass
@@ -73,13 +73,17 @@ class FiscalPrinterDriver(DriverInterface):
 
 
     def _write( self, s ):
-        debug( "_write", ", ".join( [ "%x" % ord(c) for c in s ] ) )
-        self._serialPort.write( s.encode() )
+        debug( "_write", ", ".join( [ "{}".format(ord(c)) for c in s ] ) )
+        self._serialPort.write( s.encode('utf-8') )
 
     def _read( self, count ):
         ret = self._serialPort.read( count )
-        debug( "_read", ", ".join( [ "%x" % ord(c) for c in ret ] ) )
-        return ret
+
+        # Supongamos que 'ret' es una cadena de bytes
+        decoded_str = ret.decode('utf-8')  # Decodifica a una cadena
+            
+        debug( "_read", ", ".join( [ "{}".format(ord(c)) for c in decoded_str ] ) )
+        return decoded_str
 
     def __del__( self ):
         if hasattr(self, "_serialPort" ):
