@@ -8,7 +8,7 @@ IF NOT EXIST "venv\" (
 
 call venv\Scripts\activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python pip install -r requirements.txt
 echo.
 echo ¡Actualización completada!
 pause
