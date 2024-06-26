@@ -3,6 +3,9 @@
 *.py[cod]
 venv/
 .env
+/venv_2-7-12/
+/venv_3-10-10/
 *.sqlite3
 /.pytest_cache/
+Python27/*
 *.pyc
