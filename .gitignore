@@ -2,6 +2,8 @@
 /__pycache__/
 *.py[cod]
 venv/
+venv_2-7-12/
+venv_3-10-10/
 .env
 *.sqlite3
 /.pytest_cache/
