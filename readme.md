@@ -348,7 +348,7 @@ Abre la gaveta de dinero. No es necesario pasar parámetros extra.
 
 Imprime un cierre fiscal X o Z dependiendo el parámetro enviado
 
-### Cierre X
+### Cierre Z
 ```
 {
   "dailyClose": "Z"
