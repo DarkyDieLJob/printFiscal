@@ -19,16 +19,17 @@ pause
 
 
 IF NOT EXIST "venv_2-7-12\" (
+    .\Python27\python.exe -m pip install --upgrade pip
     .\Python27\python.exe -m pip install virtualenv
     echo Creando entorno virtual...
-    .\Python27\python.exe -m virtualenv venv_2-7-12
+    .\Python27\python.exe -m venv venv_2-7-12
 )
 echo ¡2!
 pause
 
 IF EXIST "venv_2-7-12\" (
+    .\Python27\python.exe -m pip install virtualenv
     call venv_2-7-12\Scripts\activate
-    .\Python27\python.exe -m pip install --upgrade pip
     .\Python27\python.exe -m pip install -r requirements_fiscal.txt
     echo.
     echo ¡Actualización completada!
