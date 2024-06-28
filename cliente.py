@@ -4,7 +4,7 @@ import websockets
 import json
 
 async def conectar_a_websocket(data):
-	uri = "ws://169.254.0.251:12000/ws"  # Cambia la IP y el puerto según tu servidor
+	uri = "ws://169.254.124.42:12000/ws"  # Cambia la IP y el puerto según tu servidor
 
 	# Convertir a formato de bytes
 	mensaje_json = json.dumps(data).encode()
