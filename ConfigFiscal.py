@@ -1,7 +1,7 @@
 import ConfigParser
 import os
 
-CONFIG_FILE_NAME = "config_hasar320.ini"
+CONFIG_FILE_NAME = "config.ini"
 
 class ConfigFiscal:
 
