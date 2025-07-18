@@ -1,4 +1,6 @@
 
+# -*- coding: utf-8 -*-
+
 from tornado import ioloop, gen, websocket
 import json
 
