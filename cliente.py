@@ -1,21 +1,24 @@
 
-import asyncio
-import websockets
+from tornado import ioloop, gen, websocket
 import json
 
-async def conectar_a_websocket(data):
-	uri = "ws://localhost:12000/ws"  # Conectando al servidor local de Docker
-
-	# Convertir a formato de bytes
-	mensaje_json = json.dumps(data).encode()
-
-	async with websockets.connect(uri) as websocket:
-		await websocket.send(mensaje_json)
-		respuesta = await websocket.recv()
-		while True:
-			if respuesta:
-				print(respuesta)
-				break
+@gen.coroutine
+def conectar_a_websocket(data):
+    try:
+        # Conectar al WebSocket
+        ws = yield websocket.websocket_connect('ws://localhost:12000/ws')
+        
+        # Enviar el mensaje al servidor
+        ws.write_message(json.dumps(data))
+        
+        # Esperar la respuesta del servidor
+        respuesta = yield ws.read_message()
+        print("Respuesta del servidor:", respuesta)
+        
+        # Cerrar la conexión
+        ws.close()
+    except Exception as e:
+        print("Error en la conexión WebSocket:", str(e))
 
 # Ejemplo de uso
 '''
@@ -103,9 +106,11 @@ boletas = [{
     },
     "printerName": "IMPRESORA_FISCAL"
 }]
-for boleta in boletas:
-	print(boleta)
-	asyncio.run(conectar_a_websocket(boleta))
+if __name__ == "__main__":
+    for boleta in boletas:
+        print("Enviando boleta:")
+        print(boleta)
+        ioloop.IOLoop.current().run_sync(lambda b=boleta: conectar_a_websocket(b))
 
 
 
