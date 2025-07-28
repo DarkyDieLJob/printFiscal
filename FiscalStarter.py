@@ -136,7 +136,7 @@ class FiscalServer:
 
 		self.print_printers_resume()
 		puerto = self.get_config_port()
-		self.http_server.listen( puerto )
+		self.http_server.listen(puerto, '0.0.0.0')
 		myIP = socket.gethostbyname(socket.gethostname())
 
 		# inicializar intervalo para verificar que la impresora tenga papel
