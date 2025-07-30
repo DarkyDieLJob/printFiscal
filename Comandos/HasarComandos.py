@@ -477,6 +477,8 @@ class HasarComandos(ComandoInterface):
             self._sendCommand(self.CMD_OPEN_DRAWER, [])
 
     def dailyClose(self, type):
+        # Asegurar que type sea un string y tomar solo el primer carácter
+        type = str(type)[0].upper()
         reply = self._sendCommand(self.CMD_DAILY_CLOSE, [type])
         
         datos =  [

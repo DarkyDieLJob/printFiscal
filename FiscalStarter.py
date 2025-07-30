@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
@@ -7,6 +10,7 @@ from Traductores.TraductoresHandler import TraductoresHandler, TraductorExceptio
 import socket
 import json
 import logging
+import sys
 import time
 import ssl
 import ConfigFiscal
@@ -204,3 +208,17 @@ class FiscalServer:
 				modelo = self.configFisc.config.get(printer, "modelo")
 			print "      marca: %s, driver: %s" % (marca, driver)
 		print "\n"
+
+# Configurar logging con formato detallado
+logging.basicConfig(
+    level=logging.DEBUG,  # Cambiado a DEBUG para ver mensajes más detallados
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),  # Mostrar logs en consola
+        logging.FileHandler('fiscal_server.log')  # Guardar logs en archivo
+    ]
+)
+
+# Configurar nivel de logs para las librerías de bajo nivel
+logging.getLogger('FiscalPrinterDriver').setLevel(logging.DEBUG)
+logging.getLogger('TraductorFiscal').setLevel(logging.DEBUG)

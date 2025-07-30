@@ -8,12 +8,49 @@ class TraductorFiscal(TraductorInterface):
 	_tipoImpresion= None
 
 	def dailyClose(self, type):
-		"Comando X o Z"
-		# cancelar y volver a un estado conocido
-		self.comando.cancelAnyDocument()
+		"""
+		Comando X o Z
+		X: Cierre X (cierre parcial)
+		Z: Cierre Z (cierre total)
+		"""
+		import logging
+		import traceback
+		logger = logging.getLogger('TraductorFiscal')
 		
-		ret = self.comando.dailyClose(type)
-		return ret
+		try:
+			logger.info("="*50)
+			logger.info("INICIANDO CIERRE %s" % type)
+			logger.info("="*50)
+			
+			# 1. Intentar cancelar cualquier documento abierto
+			try:
+				logger.info("Intentando cancelar cualquier documento abierto...")
+				self.comando.cancelAnyDocument()
+				logger.info("Operación de cancelación completada")
+			except Exception as e:
+				logger.error("Error al cancelar documento: %s" % str(e))
+				logger.error(traceback.format_exc())
+				# Continuar a pesar del error
+			
+			# 2. Intentar el cierre Z
+			logger.info("\n" + "-"*50)
+			logger.info("INTENTANDO CIERRE %s" % type)
+			logger.info("-"*50)
+			
+			try:
+				ret = self.comando.dailyClose(type)
+				logger.info("Cierre %s completado. Respuesta: %s" % (type, str(ret)))
+				return ret
+				
+			except Exception as e:
+				logger.error("ERROR durante el cierre %s: %s" % (type, str(e)))
+				logger.error(traceback.format_exc())
+				raise
+				
+		except Exception as e:
+			logger.error("ERROR CRÍTICO en dailyClose: %s" % str(e))
+			logger.error(traceback.format_exc())
+			raise
 
 
 
