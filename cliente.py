@@ -53,16 +53,6 @@ data = {
 			"importe": 4924.39
 			}
 		],
-<<<<<<< HEAD
-		"pie": [
-			"Efectivo 4924.39",
-			"Vuelto: 0"
-		]
-	},
-	"printerName": "IMPRESORA_FISCAL"
-	}
-asyncio.run(conectar_a_websocket(data))
-=======
 	},
 	"printerName": "IMPRESORA_FISCAL",
 	},
@@ -120,7 +110,6 @@ if __name__ == "__main__":
         print("Enviando boleta:")
         print(boleta)
         ioloop.IOLoop.current().run_sync(lambda b=boleta: conectar_a_websocket(b))
->>>>>>> 5d141564bec8d2194f04867f4c0ccffcaa47639e
 
 
 
