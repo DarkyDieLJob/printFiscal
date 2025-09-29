@@ -1,9 +1,9 @@
 @echo off
 cd %~dp0
 
-IF NOT EXIST "venv\" (
+IF NOT EXIST "venv_3-10-10\" (
     echo Creando entorno virtual...
-    python -m venv venv
+    python -m venv venv_3-10-10
 )
 
 call venv\Scripts\activate

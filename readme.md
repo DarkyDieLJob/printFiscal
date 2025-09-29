@@ -1,466 +1,147 @@
-# printFiscal
+# Impresora Fiscal - Documentación
 
-## NOTA IMPORTANTE MASTER: Este proyecto está basado en el proyecto https://github.com/paxapos/fiscalberry.
+Este proyecto permite la comunicación con impresoras fiscales a través de una API REST. Actualmente, es compatible con impresoras Hasar 715v2, pero puede extenderse a otros modelos.
 
-Agregue funcionalidad que no tenia el proyecto antes mencionado (por ejemplo, percepciones, impuestos internos, remitos, descuentos y recargos, etc.)
+## Tabla de Contenidos
 
-Funciona en cualquier PC con cualquier sistema operativo que soporte python.
+1. [Requisitos del Sistema](#requisitos-del-sistema)
+2. [Configuración Inicial](#configuración-inicial)
+3. [Uso con Docker](#uso-con-docker)
+4. [Estructura del Proyecto](#estructura-del-proyecto)
+5. [API de Ejemplo](#api-de-ejemplo)
+6. [Solución de Problemas](#solución-de-problemas)
+7. [Licencia](#licencia)
 
-Windows: 
-```
- Se incluye en el proyecto la version del Python sobre la que esta testeada, y ya tiene incluidos todos las dependencias necesarias.
- Ademas se adjunta el instalador del NMap que se necesita instalar. En la carpeta Instalar.
-```
-	
-Linux:
-```	
- Se necesitan estas dependencias de python	
-		* python-pip (yum o apt-get)
-		* pyserial (pip install)
-		* build-essential python-dev (yum o apt-get)
-		* tornado (pip install)
-		* python-nmap (yum o apt-get)
-		* python-imaging python-serial python-dev python-setuptools (yum o apt-get)
-		* python-escpos (pip install)	
-```		
+## Requisitos del Sistema
 
-Esta testeado y usandose en un Proyecto en Angular 2, solo hay que llamar a un WS de tipo WebSocket con la url, enviando y recibiendo JSONs.
+- Python 2.7
+- Docker (opcional, para despliegue en contenedores)
+- Impresora fiscal compatible (Hasar 715v2 probada)
+- Permisos de escritura en el puerto USB (/dev/ttyUSB0)
 
-### Archivo de configuracion
+## Configuración Inicial
 
-Se incluyen los config.ini de cada uno de los modelos que se soportan, solo hay que renombrar el que se necesite como config.ini.
-Es condicion necesaria que por lo menos una de las impresoras se llame **IMPRESORA_FISCAL**.
+### 1. Instalación de Dependencias
 
-En puerto va el numero de puerto sobre el que queremos correr el demonio (por defecto 12000).
+```bash
+# Instalar dependencias del sistema
+sudo apt-get update
+sudo apt-get install -y python-pip python-serial
 
-Las opciones son:
-
-  Marca: 
-```  Hasar o Epson```
-
-  Modelo: 
-```		
-  (para Hasar)
-	"615"
-	"715v1"
-	"715v2"
-	"320"
-
-  (para Epson)
-	"tickeadoras"
-	"epsonlx300+"
-	"tm220af"
-```	
-
-  Path:
-```	
-  Windows: COM1, COM2, etc
-  Linux: /dev/ttyUSB0, /dev/ttyS0, etc
-```	
-
-  Driver:
-```	Hasar, Epson, Dummy, File ```	
-
-
-### Iniciar el servicio
-
-```	
- Windows:
-   Se incluye un bat llamado iniciarServicio.bat que ejecuta el daemon.
-   Si se quiere ejecutarlo en modo silent (que no abra la ventana negra del cmd), en el ejecutar de windows poner silentbatch.exe iniciarServicio.bat
-```		
-```	
-Linux: 
-   python server.py 
-```		
-	
-### Instalar Demonio
-
-```
-Windows:
-  Añadir un acceso directo a "%appdata%\Microsoft\Windows\Start Menu\Programs\Startup" con el comando	silentbatch.exe iniciarServicio.bat
-```	
-
-```	
- Linux:
-   Editar el archivo fiscal-server-rc 
-     Este hace que el server.py se convierta en un servicio de linux para ejecutar en background. 
-     Antes de instalarlo es necesario modificarle la linea donde se especifica el path en donde esta instalado el proyecto: 
-           DIR=aca poner el path a la carpeta, deberá ingresar el path correcto ( en el ultimo "/") EJ: DIR=/home/USER/fiscal
-			
-     cp fiscal-server-rc  /etc/init.d/  
-     update-rc.d fiscal-server-rc defaults	
-		
-     Ya lo podemos detener o iniciar usando:
-
-     service fiscal-server-rc stop
-     service fiscal-server-rc start
-     service fiscal-server-rc restart
-```	
-
-# Documentación
-
-## NOTA IMPORTANTE: Por defecto el servidor inicia en localhost:12000/ws sino se le pasa host, puerto y uri.
-
-Al imprimir un ticket el servidor enviará 3 comandos previos que pueden resultar en un mensaje de warning: **comando no es valido para el estado de la impresora fiscal**.
-
-Esto no es un error, sino que antes de imprimir un tiquet envia:
-
-	* CANCELAR CUALQUIER TIQUET ABIERTO
-	* CANCELAR COMPROBANTE NO FISCAL
-	* CANCELAR NOTA DE CREDITO O DEBITO
-
-De esta forma evitamos cualquier tipo de error si un comprobante esta abierto por ejemplo.
-
-El JSON siempre tiene que tener este formato
-```	
- {
-   "accion_a_ejecutar": 
-    {
-       parametros de la accion
-    },
-    "printerName": "IMPRESORA_FISCAL" // este es el nombre de la impresora del archivo config.ini (siempre tiene que haber una con este nombre minimamente)
- }
-```	
-Lo enviamos usando websockets a un host y puerto determinado (el servidor fiscal), éste lo procesa, envia a imprimir, y responde al cliente con la respuesta de la impresora.
-
-## ACCION printTicket o printRemito		
-
-### Tipos de comprobantes
-```
-  tipo_cbte
-      "TA", 	#Tiquets A
-      "TB",  	#Tiquets B
-      "FA", 	#Factura A
-      "FB", 	#Factura B
-      "NDA", 	#Nota Debito A
-      "NCA", 	#Nota Credito A
-      "NDB", 	#Nota Debito B
-      "NCB", 	#Nota Credito B
-      "FC", 	#Factura C
-      "NDC", 	#Nota Debito C
-      "NDC", 	#Nota Credito C
-      "R" 		#Remito
-```		
-### Tipos de documentos
-```
-  tipo_doc
-     "DNI",
-     "CUIT",
-     "LIBRETA_CIVICA",
-     "LIBRETA_ENROLAMIENTO",
-     "PASAPORTE",
-     "SIN_CALIFICADOR",
-     "CEDULA"
-```
-### Tipos de responsable
-```
-  tipo_responsable
-     "RESPONSABLE_INSCRIPTO",
-     "RESPONSABLE_NO_INSCRIPTO",
-     "NO_RESPONSABLE",
-     "EXENTO",
-     "CONSUMIDOR_FINAL",
-     "RESPONSABLE_MONOTRIBUTO",
-     "NO_CATEGORIZADO",
-     "PEQUENIO_CONTRIBUYENTE_EVENTUAL",
-     "MONOTRIBUTISTA_SOCIAL",
-     "PEQUENIO_CONTRIBUYENTE_EVENTUAL_SOCIAL"
-```
-### Partes del JSON a enviar
-    encabezado (OPCIONAL): 
-       array de strings para imprimir en el header del ticket/factura
-		
-    cabecera (OBLIGATORIO): 
-       tipo_cbte: (OPCIONAL - DEFECTO 'TB') tipo de comprobante segun la tabla antes especificada
-       tipo_responsable: (OPCIONAL - DEFECTO 'CONSUMIDOR_FINAL') tipo de responsable segun la tabla antes especificada
-       tipo_doc: (OPCIONAL - DEFECTO 'SIN_CALIFICADOR') tipo de documento segun la tabla antes especificada
-       nro_doc: (OPCIONAL - DEFECTO ' ') numero de documento del cliente
-       nombre_cliente: (OPCIONAL - DEFECTO ' ') nombre/razon social del cliente 
-       domicilio_cliente: (OPCIONAL - DEFECTO ' ') domicilio del cliente 
-       referencia: (OPCIONAL - DEFECTO None) numero de comprobante original (Solo para ND/NC)
-       copias: (OPCIONAL - DEFECTO 1) cantidad de copias (Solo para Remitos)
-		
-    items (OBLIGATORIO): array con el listado de productos a imprimir
-       ds: (OBLIGATORIO) descripcion del producto
-       qty: (OBLIGATORIO) cantidad del producto
-       importe: (OPCIONAL - DEFECTO 0) importe del producto
-       alic_iva: (OPCIONAL - DEFECTO 21) alicuota correspondiente de IVA
-       tasaAjusteInternos: (OPCIONAL - DEFECTO 0) la tasa de ajuste para calculo de impuestos internos (Ver manual de las fiscales correspondientes)
-       itemNegative: (OPCIONAL - DEFECTO False) si el item es en negativo (resta) o en positivo (suma)
-       discount: (OPCIONAL - DEFECTO 0) importe del descuento del item (NO PROBADO)
-       discountDescription: (OPCIONAL - DEFECTO ' ') descripcion del descuento del item (NO PROBADO)
-       discountNegative: (OPCIONAL - DEFECTO True) si el descuento es negativo (descuento) o positivo (recargo) (NO PROBADO)
-	   
-	NOTA: 
-          en el caso de comprobantes A el importe debe ser NETO	
-          en el caso de comprobantes B el importe debe ser con el IVA incluido
-		
-    dtosGenerales (OPCIONAL): descuentos globales o recargos dependiendo el modelo de impresora
-       ds: (OBLIGATORIO) descripcion del descuento
-       importe: (OBLIGATORIO) importe del descuento
-       alic_iva: (OPCIONAL - DEFECTO 21) alicuota correspondiente de IVA
-       negative: (OPCIONAL - DEFECTO True) si el item es en negativo (descuento) o en positivo (recargo)
-		
-    formasPago (OPCIONAL): array con las distintas formas de pago del ticket / factura
-       ds: (OBLIGATORIO) descripcion de la forma de pago
-       importe: (OBLIGATORIO) importe de la forma de pago
-		
-    percepciones (OPCIONAL): percepciones de la factura/ticket 
-       ds: (OBLIGATORIO) descripcion de la percepcion
-       importe: (OBLIGATORIO) importe de la percepcion
-       alic_iva: (OPCIONAL - DEFECTO '**.**') alicuota correspondiente de IVA (percepcion de IVA) o **.** para otras percepciones
-       porcPerc: (OPCIONAL - DEFECTO 0) porcentaje de la percepcion
-				
-    descuentosRecargos (OPCIONAL): descuentos y recargos al final de los items
-       ds: (OBLIGATORIO) descripcion del descuento/recargo
-       importe: (OBLIGATORIO) importe del descuento/recargo
-       alic_iva: (OPCIONAL - DEFECTO 21) alicuota correspondiente de IVA
-       tasaAjusteInternos: (OPCIONAL - DEFECTO 0) la tasa de ajuste para calculo de impuestos internos (Ver manual de las fiscales correspondientes)
-       itemNegative: (OPCIONAL - DEFECTO True) si el item es en negativo (descuento) o en positivo (recargo)
-				
-    pie (OPCIONAL): 
-       array de strings para imprimir en el footer del ticket/factura
-		
-## EJEMPLOS
-
-### FACTURA A
-
-	{
-	  "printTicket": {
-		"encabezado": ["Nombre del vendedor:", "PEPE GOMEZ", "."],
-		"cabecera": {
-			"tipo_cbte": "FA",
-			"nro_doc": 11111111111,
-			"domicilio_cliente": "CALLE DE LA DIRECCION 1234",
-			"tipo_doc": "CUIT",
-			"nombre_cliente": "JOSE LOPEZ",
-			"tipo_responsable": "RESPONSABLE_INSCRIPTO"
-		},
-		"items": [
-		 {
-		   "alic_iva": 21,
-		   "importe": 128.5749995,
-		   "ds": "FERNET",
-		   "qty": 24,
-		   "tasaAjusteInternos": 21.85
-		 }, 
-		 {
-		   "alic_iva": 21,
-		   "importe": 164.0160845,
-		   "ds": "VINO",
-		   "qty": 6
-		 }
-		],
-		"dtosGenerales": [
-		 {
-		   "alic_iva": 21,
-		   "importe": 10,
-		   "ds": "Descuento"
-		 }
-		],
-		"formasPago": [
-		 {
-		  "ds": "Cuenta Corriente",
-		  "importe": 4770.22
-		 }
-		],
-		"percepciones": [
-		 {
-		  "importe": 52.22,
-		  "ds": "PERCEPCION CBA",
-		  "porcPerc": 2
-		 }
-		],
-		"descuentosRecargos": [
-		  {
-		   "alic_iva": 21,
-		   "importe": 155.5,
-		   "ds": "DESCUENTO",
-		   "tasaAjusteInternos": 21.85
-		  }
-		],
-		"pie": ["Efectivo 4771.22", "Vuelto: 1.00"]
-      },
-	  "printerName": "IMPRESORA_FISCAL"
-	}
-  
-### NOTA DE CREDITO A
-
-	{
-	  "printTicket": {
-		"encabezado": ["Nombre del vendedor:", "PEPE GOMEZ", "."],
-		"cabecera": {
-			"tipo_cbte": "NCA",
-			"nro_doc": 11111111111,
-			"domicilio_cliente": "CALLE DE LA DIRECCION 1234",
-			"tipo_doc": "CUIT",
-			"nombre_cliente": "JOSE LOPEZ",
-			"tipo_responsable": "RESPONSABLE_INSCRIPTO",
-			"referencia": 00000025
-		},
-		"items": [
-		 {
-		   "alic_iva": 21,
-		   "importe": 128.5749995,
-		   "ds": "FERNET",
-		   "qty": 24,
-		   "tasaAjusteInternos": 21.85
-		 }
-		]
-      },
-	  "printerName": "IMPRESORA_FISCAL"
-	}  
-  
-### REMITO
-
-	{
-	  "printTicket": {
-		"cabecera": {
-			"tipo_cbte": "R",
-			"nro_doc": 11111111111,
-			"domicilio_cliente": "CALLE DE LA DIRECCION 1234",
-			"tipo_doc": "CUIT",
-			"nombre_cliente": "JOSE LOPEZ",
-			"tipo_responsable": "RESPONSABLE_INSCRIPTO",
-			"copias": 1
-		},
-		"items": [
-		 {
-		   "ds": "FERNET",
-		   "qty": 24
-		 }
-		]
-      },
-	  "printerName": "IMPRESORA_FISCAL"
-	}    
-
-## ACCION openDrawer	
-
-Abre la gaveta de dinero. No es necesario pasar parámetros extra.
-```
-{
-  "openDrawer": true
-}
+# Instalar dependencias de Python
+pip install -r requirements_fiscal.txt
 ```
 
-## ACCION dailyClose	
+### 2. Configuración de la Impresora
 
-Imprime un cierre fiscal X o Z dependiendo el parámetro enviado
+Edite el archivo `config.ini` con los parámetros de su impresora:
 
-### Cierre X
-```
-{
-  "dailyClose": "Z"
-}
-```
-
-### Cierre X
-```
-{
-  "dailyClose": "X"
-}
+```ini
+[IMPRESORA_FISCAL]
+path = /dev/ttyUSB0
+speed = 9600
+driver = Hasar
 ```
 
-## ACCION getLastNumber	
+### 3. Permisos del Puerto USB
 
-Devuelve el numero del ultimo comprobante impreso segun tipo de factura como parámetro hay que pasarle una variable estatica "tipo_cbte"
+Asegúrese de que el usuario tenga permisos para acceder al puerto USB:
 
-### Ultimo numero de Ticket A
-```
-{
- "getLastNumber": "TA"
-}
+```bash
+sudo usermod -a -G dialout $USER
+sudo chmod 666 /dev/ttyUSB0
 ```
 
-### Ultimo numero de Factura A
-```
-{
- "getLastNumber": "FA"
-}
+## Uso con Docker
+
+### Construir la imagen
+
+```bash
+docker build -t print-fiscal .
 ```
 
-### Ultimo numero de Nota de Credito A
-```
-{
- "getLastNumber": "NCA"
-}
+### Ejecutar el contenedor
+
+```bash
+docker run -d --name fiscal-printer \
+  -p 12000:12000 \
+  --device=/dev/ttyUSB0 \
+  -v /dev/ttyUSB0:/dev/ttyUSB0 \
+  --group-add dialout \
+  --privileged \
+  print-fiscal
 ```
 
-## RESPUESTA 
-La respuesta es un JSON con el siguiente formato
-	
-### En el caso del printTicket la rta es el numero impreso
-```
-{
- "rta": [
-   {
-     "action": "printTicket",
-     "rta": "7"
-   }
- ]
-}
+## Estructura del Proyecto
+
+- `server.py`: Punto de entrada del servidor
+- `cliente.py`: Cliente de ejemplo para probar la impresión
+- `ConfigFiscal.py`: Manejo de configuración
+- `Traductores/`: Lógica de traducción para diferentes impresoras
+- `Drivers/`: Controladores para diferentes modelos de impresoras
+
+## API de Ejemplo
+
+### Enviar un ticket
+
+```python
+import asyncio
+import websockets
+import json
+
+async def enviar_ticket():
+    data = {
+        "printTicket": {
+            "cabecera": {
+                "tipo_cbte": "T",
+                "nro_doc": "20123456789",
+                "domicilio_cliente": "CALLE FALSA 123",
+                "tipo_doc": "CUIT",
+                "nombre_cliente": "CLIENTE DE PRUEBA",
+                "tipo_responsable": "RESPONSABLE_INSCRIPTO",
+                "condicion_venta": "CONTADO"
+            },
+            "items": [
+                {
+                    "ds": "PRODUCTO DE PRUEBA 1",
+                    "qty": 2.0,
+                    "importe": 200.0,
+                    "alic_iva": 21.0,
+                    "tasaAjusteInternos": 0,
+                    "itemNegative": False
+                }
+            ],
+            "formasPago": [
+                {
+                    "ds": "EFECTIVO",
+                    "importe": 200.0
+                }
+            ]
+        },
+        "printerName": "IMPRESORA_FISCAL"
+    }
+    
+    async with websockets.connect('ws://localhost:12000/ws') as websocket:
+        await websocket.send(json.dumps(data))
+        respuesta = await websocket.recv()
+        print(respuesta)
+
+asyncio.get_event_loop().run_until_complete(enviar_ticket())
 ```
 
-### En el caso del CierreZ el objeto rta es similar a este
-	HASAR:
-	{ 
-	  _RESERVADO_SIEMPRE_CERO_: "0" (Integer)  
-	  _cant_doc_fiscales_: "0" (Integer)  
-	  _cant_doc_fiscales_a_emitidos_: "0" (Integer)  
-	  _cant_doc_fiscales_bc_emitidos_: "0" (Integer)  
-	  _cant_doc_fiscales_cancelados_: "0" (Integer)  
-	  _cant_doc_nofiscales_: "1" (Integer)  
-	  _cant_doc_nofiscales_homologados_: "0" (Integer)  
-	  _cant_nc_a_fiscales_a_emitidos_: "0" (Integer)  
-	  _cant_nc_bc_emitidos_: "0" (Integer)  
-	  _cant_nc_canceladas_: "0" (Integer)  
-	  _monto_credito_nc_: "0.00" (Float)  
-	  _monto_imp_internos_: "0.00" (Float)  
-	  _monto_imp_internos_nc_: "0.00" (Float)  
-	  _monto_iva_doc_fiscal_: "0.00" (Float)  
-	  _monto_iva_nc_: "0.00" (Float)  
-	  _monto_iva_no_inscripto_: "0.00" (Float)  
-	  _monto_iva_no_inscripto_nc_: "0.00" (Float)  
-	  _monto_percepciones_: "0.00" (Float)  
-	  _monto_percepciones_nc_: "0.00" (Float)  
-	  _monto_ventas_doc_fiscal_: "0.00"(Float)  
-	  _status_fiscal_: "0600" (Hexadecimal)  
-	  _status_impresora_: "C080" (Hexadecimal)  
-	  _ultima_nc_a_: "30" (Integer)  
-	  _ultima_nc_b_: "327" (Integer)  
-	  _ultimo_doc_a_: "2262" (Integer)  
-	  _ultimo_doc_b_: "66733" (Integer)  
-	  _ultimo_remito_: "0" (Integer)  
-	  _zeta_numero_: "1" (Integer)  
-	}  
-	
-	EPSON:
-	{
-	  _status_fiscal_: "0600" (Hexadecimal)  
-	  _status_impresora_: "C080" (Hexadecimal)  
-	  _zeta_numero_: "1" (Integer)  
-	  _cant_doc_fiscales_cancelados_: "0" (Integer)  
-	  _cant_doc_nofiscales_homologados_: "0" (Integer) 
-	  _cant_doc_nofiscales_: "1" (Integer)
-	  _cant_doc_fiscales_bc_emitidos_: "0" (Integer)  
-	  _cant_doc_fiscales_a_emitidos_: "0" (Integer)  
-	  _ultimo_doc_bc_: "66733" (Integer)  
-	  _monto_ventas_doc_fiscal_: "0.00"(Float) 
-	  _monto_iva_doc_fiscal_: "0.00" (Float)  
-	  _monto_percepciones_: "0.00" (Float) 
-	  _ultimo_doc_a_: "2262" (Integer)
-     }
+## Solución de Problemas
 
-### Tambien puede venir un error en la impresion o configuracion
-```
-{
- "err": "Por el momento, la impresion de remitos no esta habilitada."
-}
-```
-### O puede venir un mensaje de la impresora
-```
-{
- "msg": ["Poco papel para comprobantes o tickets"]
-}
-```
+### Error: "could not open port COM1"
+
+Asegúrese de que:
+1. El puerto USB esté correctamente configurado en `config.ini`
+2. La impresora esté conectada y encendida
+3. Los permisos del puerto sean correctos
+
+### Error: "object of type 'int' has no len()"
+
+Verifique que los tipos de datos en el JSON sean los correctos (usar cadenas en lugar de números donde corresponda).
+
+## Licencia
+
+Este proyecto está bajo la licencia MIT.
