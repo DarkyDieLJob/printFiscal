@@ -110,6 +110,6 @@ if __name__ == "__main__":
         print("Enviando boleta:")
         print(boleta)
         ioloop.IOLoop.current().run_sync(lambda b=boleta: conectar_a_websocket(b))
-
+'''
 
 
